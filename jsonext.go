@@ -57,7 +57,7 @@ func (d *Decoder) descendStruct(rv reflect.Value, data map[string]interface{}) e
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 		fieldv := rv.Field(i)
-		jsonFieldname := fieldnameFromTag(field.Tag.Get("json"))
+		jsonFieldname := jsonFieldname(field)
 		tag := field.Tag.Get("jsonext")
 		switch tag {
 		case "descend":
@@ -99,8 +99,12 @@ func (d *Decoder) descendStruct(rv reflect.Value, data map[string]interface{}) e
 	return nil
 }
 
-func fieldnameFromTag(jsontag string) string {
-	return strings.Split(jsontag, ",")[0]
+func jsonFieldname(f reflect.StructField) string {
+	jsonTag := strings.Split(f.Tag.Get("json"), ",")[0]
+	if jsonTag == "" {
+		return f.Name
+	}
+	return jsonTag
 }
 
 func remarshal(dst interface{}, src interface{}) error {
