@@ -1,6 +1,7 @@
 package jsonext
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -94,4 +95,26 @@ func TestUnmarshalDeep(t *testing.T) {
 	if !reflect.DeepEqual(thing, expected) {
 		t.Fatalf("Unexpected result value %#v expected %#v", thing, expected)
 	}
+}
+
+func ExampleUnmarshal() {
+	var jsonBlob = []byte(`{
+		"Name": "Platypus",
+		"Order": "Monotremata",
+		"Beak": "Yellow",
+		"IsAGroundhog": false
+	}`)
+	type Animal struct {
+		Name     string
+		Order    string
+		CatchAll `jsonext:"catchall"`
+	}
+	var animal Animal
+	err := Unmarshal(jsonBlob, &animal)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Printf("%+v", animal)
+	// Output:
+	// {Name:Platypus Order:Monotremata CatchAll:map[Beak:Yellow IsAGroundhog:false]}
 }

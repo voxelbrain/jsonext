@@ -9,10 +9,23 @@ import (
 	"strings"
 )
 
+// CatchAll is the expected type of the field marked with the
+// `catchall` tag.
 type CatchAll map[string]interface{}
 
 var catchAllType = reflect.TypeOf(CatchAll{})
 
+// Unmarshal behaves exactly like encoding/json.Unmarhsal.
+//
+// Additionally, though, Unmarshal supports the `jsonexp` tag with
+// 2 possible values.
+// If a field of the type CatchAll has the tag `catchall`, every JSON
+// field which could not be mapped to a struct member will be put in the
+// CatchAll field.
+// If a field of a struct type has the tag `descend`, jsonexp will
+// recurse into the struct and look for a nested CatchAll field. If
+// the `descend` tag is not set on a struct member, the normal JSON
+// unmarshaller will be called.
 func Unmarshal(data []byte, v interface{}) error {
 	return NewDecoder(bytes.NewReader(data)).Decode(v)
 }
