@@ -47,3 +47,6 @@ func ExampleUnmarshal() {
 
 [encoding/json]: http://godoc.org/encoding/json
 [documentation]: http://godoc.org/github.com/voxelbrain/jsonext
+
+---
+Version 0.1.0

@@ -4,3 +4,7 @@
 //
 // The documentation is equivalent to encoding/json, unless otherwise noted.
 package jsonext
+
+const (
+	VERSION = "0.1.0"
+)
