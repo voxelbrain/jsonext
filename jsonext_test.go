@@ -97,6 +97,53 @@ func TestUnmarshalDeep(t *testing.T) {
 	}
 }
 
+func TestUnmarshalSlice(t *testing.T) {
+	type Thing struct {
+		A     string   `json:"a"`
+		Other CatchAll `jsonext:"catchall"`
+	}
+
+	json := `
+	[
+		{
+			"a": "1",
+			"b": "2",
+			"c": "3"
+		},
+
+		{
+			"a": "4",
+			"prop": "val"
+		}
+	]`
+
+	expected := []Thing{
+		Thing{
+			A: "1",
+			Other: CatchAll{
+				"b": "2",
+				"c": "3",
+			},
+		},
+		Thing{
+			A: "4",
+			Other: CatchAll{
+				"prop": "val",
+			},
+		},
+	}
+
+	var things []Thing
+
+	err := Unmarshal([]byte(json), &things)
+	if err != nil {
+		t.Fatalf("Could not unmarshal: %s", err)
+	}
+	if !reflect.DeepEqual(things, expected) {
+		t.Fatalf("Unexpected result value %#v expected %#v", things, expected)
+	}
+}
+
 func ExampleUnmarshal() {
 	var jsonBlob = []byte(`{
 		"Name": "Platypus",

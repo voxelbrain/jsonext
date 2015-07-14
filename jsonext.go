@@ -48,6 +48,10 @@ func (d *Decoder) Decode(v interface{}) error {
 		return d.decodeStruct(rv)
 	}
 
+	if rv.Elem().Kind() == reflect.Slice {
+		return d.decodeSlice(rv)
+	}
+
 	return d.Decoder.Decode(v)
 }
 
@@ -58,6 +62,29 @@ func (d *Decoder) decodeStruct(rv reflect.Value) error {
 		return err
 	}
 	return d.descendStruct(rv.Elem(), data)
+}
+
+func (d *Decoder) decodeSlice(rv reflect.Value) error {
+	var list []json.RawMessage
+	d.Decoder.Decode(&list)
+
+	e := rv.Elem()
+	t := e.Type().Elem()
+
+	for _, raw := range list {
+		v := reflect.New(t)
+		var data map[string]interface{}
+
+		if err := json.Unmarshal(raw, &data); err != nil {
+			return err
+		}
+		if err := d.descendStruct(v.Elem(), data); err != nil {
+			return err
+		}
+		e = reflect.Append(e, v.Elem())
+	}
+	rv.Elem().Set(e)
+	return nil
 }
 
 func (d *Decoder) descendStruct(rv reflect.Value, data map[string]interface{}) error {
